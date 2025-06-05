@@ -127,3 +127,6 @@ def get_total_revenue():
     except Exception as e:
         raise Exception(f"Error generating histogram: {e}") from e
     
+
+## Customer
+# 1. Who are the top 5 customers by total purchases?

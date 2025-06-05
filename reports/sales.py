@@ -6,7 +6,6 @@ import plotly.graph_objects as go
 import streamlit as st
 from helper import *  # Importing the function to get total sales
 
-from connection import connect_to_db
 import warnings
 warnings.filterwarnings('ignore')
 
