@@ -130,3 +130,181 @@ def get_total_revenue():
 
 ## Customer
 # 1. Who are the top 5 customers by total purchases?
+def get_top_purchase():
+    query = """
+        SELECT 
+            c.CustomerID,
+            SUM(soh.TotalDue) AS [Total Purchases]
+        FROM Customer AS c
+        JOIN SalesOrderHeader AS soh
+            ON c.CustomerID = soh.CustomerID
+        GROUP BY c.CustomerID
+        ORDER BY [Total Purchases] DESC
+        LIMIT 5
+    """
+    
+    try:
+        conn = connect_to_db()
+        df = pd.read_sql(query, conn)
+        df['CustomerID'] = df['CustomerID'].astype(str)
+
+        fig = px.bar(
+            df,
+            x='CustomerID',
+            y='Total Purchases',
+            orientation='h',
+            text='Total Purchases',
+            color='CustomerID',
+            labels={
+                'CustomerID': 'Customer ID',
+                'Total Purchases': 'Total Purchases ($)'
+            },
+            color_discrete_sequence=px.colors.sequential.Viridis
+        )
+        
+        fig.update_traces(
+            texttemplate='$%{text:,.0f}', 
+            textposition='auto',
+        )
+        fig.update_layout(
+            # showlegend=False,
+            xaxis_title='Total Purchases ($)',
+            yaxis_title='Customer ID',
+            template='plotly_white',
+            margin=dict(l=10, r=10, t=40, b=5)
+        )
+        
+        return fig
+
+    except Exception as e:
+        raise Exception(f"Error fetching top customers: {e}") from e
+    
+# 2. What is the total number of orders per customer?
+def get_orders_per_customer():
+    query = """
+        SELECT
+            c.CustomerID,
+            COUNT(soh.SalesOrderID) AS [Total Orders]
+        FROM Customer c
+        JOIN SalesOrderHeader soh
+            ON c.CustomerID = soh.CustomerID
+        GROUP BY c.CustomerID
+        ORDER BY [Total Orders] DESC
+        LIMIT 10
+    """
+
+    try:
+        conn = connect_to_db()
+        df = pd.read_sql(query, conn)
+        df['CustomerID'] = df['CustomerID'].astype(str)  # Make sure CustomerID is string for display
+
+        fig = px.bar(
+            df,
+            y='CustomerID',
+            x='Total Orders',
+            text='Total Orders',
+            color='CustomerID',
+            labels={'CustomerID': 'Customer ID', 'Total Orders': 'Number of Orders'},
+            color_discrete_sequence=px.colors.sequential.Teal
+        )
+
+        fig.update_traces(textposition='outside')
+        fig.update_layout(
+            xaxis_title='Customer ID',
+            yaxis_title='Total Orders',
+            showlegend=False,
+            template='plotly_white',
+            margin=dict(l=40, r=40, t=60, b=40)
+        )
+
+        return fig
+
+    except Exception as e:
+        raise Exception(f"Error fetching orders per customer: {e}") from e
+    
+
+# 3. Which territory has the most customers?
+def get_territory_per_customer():
+    query = """
+        SELECT 
+            st.Name AS [Territory Name], 
+            COUNT(c.CustomerID) AS [Number of Customers]
+        FROM Customer c
+        JOIN SalesTerritory st 
+            ON c.TerritoryID = st.TerritoryID
+        GROUP BY st.Name
+        ORDER BY [Number of Customers] DESC
+    """
+
+    try:
+        conn = connect_to_db()
+        df = pd.read_sql(query, conn)
+
+        fig = px.bar(
+            df,
+            x='Territory Name',
+            y='Number of Customers',
+            text='Number of Customers',
+            color='Territory Name',
+            labels={
+                'Territory Name': 'Sales Territory',
+                'Number of Customers': 'Number of Customers'
+            },
+            color_discrete_sequence=px.colors.sequential.Teal
+        )
+
+        fig.update_traces(textposition='outside')
+        fig.update_layout(
+            xaxis_title='Sales Territory',
+            yaxis_title='Number of Customers',
+            showlegend=False,
+            template='plotly_white',
+            margin=dict(l=40, r=40, t=60, b=40)
+        )
+
+        return fig
+
+    except Exception as e:
+        raise Exception(f"Error fetching customers per territory: {e}") from e
+    
+
+## Product
+#1.  Which product has the highest average unit price sold?
+def get_highest_avg_price_chart():
+    
+    query = """
+        SELECT 
+            p.Name AS [Product Name],
+            AVG(sod.UnitPrice) AS [Average Unit Price]
+        FROM SalesOrderDetail sod
+        JOIN Product p 
+        ON sod.ProductID = p.ProductID
+        GROUP BY p.Name
+        ORDER BY [Average Unit Price] DESC
+        LIMIT 10
+    """
+    
+    try:
+        conn = connect_to_db()
+        df = pd.read_sql(query, conn)
+
+        fig = px.line(
+            df,
+            x='Product Name',
+            y='Average Unit Price',
+            markers=True,
+            labels={'Product Name': 'Product', 'Average Unit Price': 'Avg. Unit Price ($)'}
+        )
+        fig.update_traces(line=dict(color='royalblue', width=3))
+        fig.update_layout(
+            xaxis_tickangle=-45,
+            template='plotly_white',
+            height=650,
+            margin=dict(l=40, r=40, t=60, b=10),
+            showlegend=True
+        )
+
+        return fig
+    
+    except Exception as e:
+        raise Exception(f"Error generating chart for highest average unit price: {e}") from e

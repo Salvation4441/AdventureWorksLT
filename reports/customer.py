@@ -28,33 +28,19 @@ st.markdown('<style>div.block-container{padding-top:2vh;}</style>', unsafe_allow
 st.title('👥 :blue[Customer & Behavior Analysis]')
 st.markdown(" ")
 
-# Create three columns with medium gap and borders
-col1, col2, col3 = st.columns(3, gap='small',border=True)
 
-# Display content in col1
-with col1:
-    st.image('images/sales.png', width=50)
-    st.metric(label="Total Sales", value=f"$ {get_total_sales():,.2f}")
-
-with col2:
-    st.image('images/order.png', width=50)
-    st.metric(label="Total Order", value=f"{get_total_orders():,.0f}")
-
-with col3:
-    st.image('images/avg.png', width=50)
-    st.metric(label="Average Sales", value=f"$ {get_average_sales():,.2f}")
-
-
-total1, total2, = st.columns([3,2], gap='large')
+total1, total2, = st.columns([3,3], gap='large')
 
 with total1:
-    with st.container(border=True,height=550):
-        st.write("💰 Top 10 Products by Sales")
-        st.plotly_chart(get_sales_per_product(), use_container_width=True)
+    with st.container(border=True,height=600):
+        st.write("🏆 Top 5 Customers by Total Purchases")
+        st.plotly_chart(get_top_purchase(), use_container_width=True)
 
 with total2:
-    with st.container(border=True, height=550):
-        st.write("💰 Total Revenue by Sales Territory")
-        st.plotly_chart(get_total_revenue(), use_container_width=True)
+    with st.container(border=True, height=600):
+        st.write("📦 Top 10 Customers by Number of Orders")
+        st.plotly_chart(get_orders_per_customer(), use_container_width=True)
 
-       
+with st.container(border=True, height=600):
+        st.write("🌍 Number of Customers per Sales Territory")
+        st.plotly_chart(get_territory_per_customer(), use_container_width=True)   
